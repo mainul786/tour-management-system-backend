@@ -2,11 +2,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 
-import httpStatus from "http-status-codes";
 import { UserServices } from "./user.service";
-import { catchAsync } from "../utils/catchAsync";
-import { success } from "zod";
-import { sendResponse } from "../utils/sendResponse";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { envVers } from "../../config/env";
+import httpStatus from "http-status-codes";
 
 export const createUser = async (
   req: Request,
@@ -28,6 +29,25 @@ export const createUser = async (
   }
 };
 
+const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.params.id;
+  // const token = req.headers.authorization;
+  // const verifiedToken = (await jwt.verify(
+  //   token as string,
+  //   envVers.JWT_ACCESS_TOKEN_SECRET
+  // )) as JwtPayload;
+  const verifiedToken = req.user;
+  const payload = req.body;
+
+  const user = await UserServices.updateUser(userId, payload, verifiedToken);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User update successfully",
+    data: user,
+  });
+};
+
 const allUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result = await UserServices.allUser();
@@ -44,5 +64,6 @@ const allUser = catchAsync(
 
 export const userControllers = {
   createUser,
+  updateUser,
   allUser,
 };
