@@ -1,5 +1,10 @@
 import { envVers } from "../config/env";
-import { IAuthProvider, IUser, Role } from "../modules/user/user.interface";
+import {
+  IAuthProvider,
+  IsActive,
+  IUser,
+  Role,
+} from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
 import bcrypt from "bcryptjs";
 
@@ -25,6 +30,8 @@ export const seedSuperAdmin = async () => {
       role: Role.SUPER_ADMIN,
       email: envVers.SUPER_ADMIN_EMAIL,
       password: passwordHash,
+      isDeleted: false,
+      isActive: IsActive.ACTIVE,
       isVerified: true,
       auths: [authProvider],
     };
