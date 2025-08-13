@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response, NextFunction } from "express";
 import { catchAsync } from "../../utils/catchAsync";
@@ -10,25 +11,40 @@ import { JwtPayload } from "jsonwebtoken";
 import { createUserToken } from "../../utils/userTokens";
 import { envVers } from "../../config/env";
 import { UserServices } from "../user/user.service";
+import passport from "passport";
 
 const userCredentialLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const loginInfo = await AuthServices.userCredentialLogin(req.body);
+    // const loginInfo = await AuthServices.userCredentialLogin(req.body);
     // res.cookie("accessToken", loginInfo.accessToken, {
     //   httpOnly: true,
     //   secure: false,
     // });
-    setAuthCokie(res, loginInfo);
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
+      if (err) {
+        return next(new AppError(401, err));
+      }
+      if (!user) {
+        return next(new AppError(401, info.message));
+      }
+      const userTokens = await createUserToken(user);
+      const { password: pass, ...rest } = user;
+      setAuthCokie(res, userTokens);
+      sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "User Login successfully!",
+        data: {
+          accessToken: userTokens.accessToken,
+          refreshToken: userTokens.refreshToken,
+          user: rest,
+        },
+      });
+    })(req, res, next);
     // res.cookie("refreshToken", loginInfo.refreshToken, {
     //   httpOnly: true,
     //   secure: false,
     // });
-    sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: "User Login successfully!",
-      data: loginInfo,
-    });
   }
 );
 
