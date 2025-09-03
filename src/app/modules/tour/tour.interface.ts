@@ -13,6 +13,8 @@ export interface ITour {
   costForm?: string;
   startDate?: Date;
   endDate?: Date;
+  departureLocatioin?: string;
+  arrivalLocation?: string;
   included?: string[];
   excluded?: string[];
   amenities?: string[];
