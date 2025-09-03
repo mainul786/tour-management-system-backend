@@ -1,0 +1,2 @@
+export const tourSearchableFields = ["title", "description", "location"];
+export const excludeField = ["searchTerm", "sort", "fields", "page", "limit"];
